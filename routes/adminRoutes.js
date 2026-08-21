@@ -83,7 +83,7 @@ router.post('/pictures', uploadLimiter, upload.single('image'), uploadPicture);
 router.get('/pictures', getPictures);
 router.get('/pictures/shared', getSharedPictures);
 router.delete('/pictures/:id', deletePicture);
-router.put('/pictures/:id', updatePicture); 
+router.put('/pictures/:id', upload.single('image'), updatePicture); 
 
 // Analytics
 router.get('/analytics', getAnalytics);

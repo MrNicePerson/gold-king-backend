@@ -21,7 +21,9 @@ connectDB();
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 // Middleware to mark SSE route for no compression
 app.use((req, res, next) => {
   if (req.path === '/api/super-admin/prices/stream') {
@@ -32,17 +34,40 @@ app.use((req, res, next) => {
 app.use(compression({
   filter: (req, res) => !req.skipCompression
 }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  'https://gold-king-fontend.vercel.app',
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://gold-king-fontend.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes(origin) ||
+      /^http:\/\/localhost:[0-9]+$/.test(origin) ||
+      /^http:\/\/127\.0\.0\.1:[0-9]+$/.test(origin) ||
+      /^https:\/\/gold-king-fontend.*\.vercel\.app$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+}, express.static('uploads'));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
