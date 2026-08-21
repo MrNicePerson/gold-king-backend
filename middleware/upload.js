@@ -81,9 +81,11 @@ const uploadWrapper = {
       if (req.file && !isCloudinaryConfigured) {
         const port = process.env.PORT || 5000;
         const host = req.get('host') || `localhost:${port}`;
-        const protocol = req.protocol || 'http';
+        const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+        const forwardedProto = req.headers['x-forwarded-proto'];
+        const protocol = forwardedProto || (isLocal ? (req.protocol || 'http') : 'https');
         const filename = req.file.filename;
-        // Set accessible HTTP URL and local publicId
+        // Set accessible URL and local publicId
         req.file.path = `${protocol}://${host}/uploads/${filename}`;
         req.file.filename = `local-${filename}`;
       }

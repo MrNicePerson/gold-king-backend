@@ -21,6 +21,9 @@ connectDB();
 
 const app = express();
 
+// Trust proxy for Render / Vercel / reverse proxies (needed for rate limiting & secure protocol)
+app.set('trust proxy', 1);
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
