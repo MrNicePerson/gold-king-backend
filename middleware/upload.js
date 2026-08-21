@@ -22,6 +22,9 @@ if (isCloudinaryConfigured) {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
+  console.log('☁️ Cloudinary storage initialized for persistent media uploads');
+} else {
+  console.warn('⚠️ Cloudinary is NOT configured. Uploads will be stored on local disk. WARNING: On Render/cloud hosts, local files are deleted whenever the server restarts or sleeps!');
 }
 
 const fileFilter = (req, file, cb) => {
